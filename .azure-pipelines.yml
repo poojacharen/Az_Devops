@@ -1,26 +1,28 @@
 trigger:
-- master  # Automatically run the pipeline whenever code is pushed to the 'master' branch
+- master
 
 pool:
-  vmImage: macOS-latest  # Use a macOS build agent
+  vmImage: macOS-latest
 
 steps:
 - task: Maven@4
   inputs:
-    mavenPomFile: 'pom.xml'  # Path to your pom.xml (same level in this case)
-    mavenOptions: '-Xmx3072m'  # Memory options for Maven
-    javaHomeOption: 'JDKVersion'  # Use a specific JDK version
-    jdkVersionOption: '1.11'  # Use Java 11 (matches your setup)
+    mavenPomFile: 'pom.xml'
+    mavenOptions: '-Xmx3072m'
+    javaHomeOption: 'JDKVersion'
+    jdkVersionOption: '1.11'
     jdkArchitectureOption: 'x64'
-    publishJUnitResults: true  # Publish test results to Azure DevOps
-    testResultsFiles: '**/surefire-reports/TEST-*.xml'  # Path to JUnit test results
-    goals: 'clean package'  # Maven goals to clean, compile, and package your app
-- task: CopyFiles@2
-  inputs:
-    Contents: '**/.war'
-    TargetFolder: '$(build.artifactstagingdirectory)'
+    publishJUnitResults: true
+    testResultsFiles: '**/surefire-reports/TEST-*.xml'
+    goals: 'clean package'
+
+- script: |
+    echo "Listing contents of the target directory..."
+    ls -R $(System.DefaultWorkingDirectory)/target
+  displayName: 'Check target directory contents'
+
 - task: PublishBuildArtifacts@1
   inputs:
-    PathtoPublish: '$(System.DefaultWorkingDirectory)/target'
-    ArtifactName: 'warfile'
+    pathtoPublish: '$(System.DefaultWorkingDirectory)/target'
+    artifactName: 'warfile'
     publishLocation: 'Container'
