@@ -15,3 +15,12 @@ steps:
     publishJUnitResults: true  # Publish test results to Azure DevOps
     testResultsFiles: '**/surefire-reports/TEST-*.xml'  # Path to JUnit test results
     goals: 'clean package'  # Maven goals to clean, compile, and package your app
+- task: CopyFiles@2
+  inputs:
+    Contents: '**/.war'
+    TargetFolder: '$(build.artifactstagingdirectory)'
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'warfile'
+    publishLocation: 'Container'
